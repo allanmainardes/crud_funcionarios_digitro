@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql-crud
+    restart: always
+    environment:
+      MYSQL_DATABASE: funcionarios
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: system
+      MYSQL_PASSWORD: syst3m
+    command: --init-file /docker-entrypoint-initdb.d/database.sql
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./app/db:/docker-entrypoint-initdb.d
+    networks:
+      - my_network
+
+  php:
+    build:
+      dockerfile: Dockerfile
+    image: php:7.4-apache
+    container_name: php-crud
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/var/www/html
+    extra_hosts:
+      - "mysql-crud:172.17.0.2"
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    external: true
+
+volumes:
+  db_data:
